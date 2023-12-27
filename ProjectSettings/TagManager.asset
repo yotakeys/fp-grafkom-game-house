@@ -4,7 +4,13 @@
 TagManager:
   serializedVersion: 2
   tags:
+<<<<<<< HEAD
   - Obstacle
+=======
+  - PlayArea
+  - Meteor
+  - Chesspiece
+>>>>>>> 5fd5a70d1f5b9a149d460346bbe5e1453bd92873
   layers:
   - Default
   - TransparentFX
