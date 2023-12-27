@@ -58,7 +58,7 @@ public class Chesspiece : MonoBehaviour
                 "queen" => VerticalMovement(x, y) || HorizontalMovement(x, y) || DiagonalMovement(x, y),
                 "rook" => VerticalMovement(x, y) || HorizontalMovement(x, y),
                 "king" => KingMovement(x, y),
-                _ => true,
+                _ => false,
             };
         }
 
@@ -269,6 +269,22 @@ public class Chesspiece : MonoBehaviour
             }
         }
 
+        int row = (player == "white") ? 0 : 7;
+        if (timesMoved == 0)
+        {
+            if (controller.GetPosition(0, row).GetComponent<Chesspiece>().piece == "rook" &&
+                controller.PositionIsEmpty(1, row) && controller.PositionIsEmpty(2, row) && controller.PositionIsEmpty(3, row))
+            {
+                availableSquares.Add(new BoardPosition(x - 2, y));
+            }
+
+            if (controller.GetPosition(7, row).GetComponent<Chesspiece>().piece == "rook" &&
+                controller.PositionIsEmpty(5, row) && controller.PositionIsEmpty(6, row))
+            {
+                availableSquares.Add(new BoardPosition(x + 2, y));
+            }
+        }
+
         return availableSquares;
     }
 
@@ -323,23 +339,57 @@ public class Chesspiece : MonoBehaviour
     {
         foreach (BoardPosition square in KingMovementSquares())
         {
-            if (square.x == x && square.y == y) return true;
+            if (square.x == x && square.y == y)
+            {
+                if (this.x + 2 == square.x)
+                {
+                    Castle("king");
+                }
+
+                if (this.x - 2 == square.x)
+                {
+                    Castle("queen");
+                }
+                return true;
+            }
         }
 
         return false;
     }
 
-    public void Move(int x, int y)
+    public void Castle(string side)
+    {
+        int row = (player == "white") ? 0 : 7;
+        if (side == "king")
+        {
+            Chesspiece rook = controller.GetPosition(7, row).GetComponent<Chesspiece>();
+
+            rook.Move(5, row);
+        }
+        else if (side == "queen")
+        {
+            Chesspiece rook = controller.GetPosition(0, row).GetComponent<Chesspiece>();
+
+            rook.Move(3, row);
+        }
+    }
+
+    public bool Move(int x, int y)
     {
         // Reset position if move is invalid
         if (!CanMovePosition(x, y))
         {
             SetPosition(this.x, this.y);
-            return;
+            return false;
         };
 
+        // Capture piece
         if (IsCaptureSquare(x, y))
         {
+            if (controller.GetPosition(x, y).GetComponent<Chesspiece>().piece == "king")
+            {
+                controller.Winner(player);
+            }
             Destroy(controller.GetPosition(x, y));
         }
 
@@ -352,18 +402,8 @@ public class Chesspiece : MonoBehaviour
         SetPosition(x, y);
 
         controller.SetPosition(gameObject);
-    }
 
-    public bool Capture(int x, int y)
-    {
-        if (!controller.PositionIsEmpty(x, y) &&
-            (player == "white" && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "black" ||
-            player == "black" && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "white"))
-        {
-            Destroy(controller.GetPosition(x, y));
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public string GetPlayer()
