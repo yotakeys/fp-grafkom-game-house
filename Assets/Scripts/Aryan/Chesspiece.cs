@@ -178,11 +178,6 @@ public class Chesspiece : MonoBehaviour
             i--; j--;
         }
 
-        foreach (BoardPosition square in availableSquares)
-        {
-            Debug.Log(square.x + " " + square.y);
-        }
-
         return availableSquares;
     }
 
@@ -204,11 +199,6 @@ public class Chesspiece : MonoBehaviour
             {
                 availableSquares.Add(new BoardPosition(newX, newY));
             }
-        }
-
-        foreach (BoardPosition square in availableSquares)
-        {
-            Debug.Log(square.x + " " + square.y);
         }
 
         return availableSquares;
@@ -242,16 +232,13 @@ public class Chesspiece : MonoBehaviour
                 }
             }
         }
-        foreach (BoardPosition square in availableSquares)
-        {
-            Debug.Log(square.x + " " + square.y);
-        }
 
         return availableSquares;
     }
 
     public List<BoardPosition> KingMovementSquares()
     {
+        // Surround squares
         List<BoardPosition> availableSquares = new();
 
         int[] dx = { -1, 0, 1, 1, 1, 0, -1, -1 };
@@ -269,6 +256,7 @@ public class Chesspiece : MonoBehaviour
             }
         }
 
+        // Castle
         int row = (player == "white") ? 0 : 7;
         if (timesMoved == 0)
         {

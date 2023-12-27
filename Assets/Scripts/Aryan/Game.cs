@@ -7,9 +7,10 @@ public class Game : MonoBehaviour
 {
     public GameObject chesspiecePrefab;
 
-    private GameObject[] positions = new GameObject[64];
+    private readonly GameObject[] positions = new GameObject[64];
 
     private GameObject selectedPiece;
+    public HUD hud;
 
     private string turn = "white";
 
@@ -61,6 +62,7 @@ public class Game : MonoBehaviour
         if (gameOver == true && Input.GetMouseButtonDown(0))
         {
             gameOver = false;
+            if (turn == "black") NextTurn();
 
             SceneManager.LoadScene("Aryan");
 
@@ -99,7 +101,7 @@ public class Game : MonoBehaviour
                 bool validMove = selectedPiece.GetComponent<Chesspiece>().Move(position.x, position.y);
                 selectedPiece = null;
 
-                if (validMove)
+                if (validMove && !gameOver)
                 {
                     audioSource.Play();
                     NextTurn();
@@ -122,8 +124,16 @@ public class Game : MonoBehaviour
     // Change turns
     public void NextTurn()
     {
-        if (turn == "white") turn = "black";
-        else if (turn == "black") turn = "white";
+        if (turn == "white")
+        {
+            turn = "black";
+            hud.SetText("BLACK TO MOVE");
+        }
+        else if (turn == "black")
+        {
+            turn = "white";
+            hud.SetText("WHITE TO MOVE");
+        }
     }
 
     // Check if position is empty
@@ -158,6 +168,13 @@ public class Game : MonoBehaviour
     {
         gameOver = true;
 
-        Debug.Log(player + " Wins!");
+        if (player == "white")
+        {
+            hud.SetText("WHITE WINS!");
+        }
+        else if (player == "black")
+        {
+            hud.SetText("BLACK WINS!");
+        }
     }
 }
