@@ -35,7 +35,7 @@ public class MainScene : MonoBehaviour
         SceneManager.LoadScene("Ferza");
     }
 
-    public void GoToJunez()
+    public void GoToSnakeGame()
     {
         SceneManager.LoadScene("Junez");
     }
