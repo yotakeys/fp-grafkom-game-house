@@ -6,6 +6,27 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/MainScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Keyisa.unity
+    guid: a87e10ba469265b48b360c5b0f87d4ae
+  - enabled: 1
+    path: Assets/Scenes/Junez.unity
+    guid: dc46c921824d6b041867151c42373241
+  - enabled: 1
+    path: Assets/Scenes/Ferza.unity
+    guid: 3dda8908743900f438b50a62134ed953
+  - enabled: 1
+    path: Assets/Scenes/Dewangga.unity
+    guid: c5e6f1230e58c194086dd1a8466126d6
+  - enabled: 1
+    path: Assets/Scenes/Baihaqi.unity
+    guid: 1d906499e7fe07446b64ec90a4a78722
+  - enabled: 1
+    path: Assets/Scenes/Aryan.unity
+    guid: 7319633b61bea0d46a6d59825c2b3762
+  - enabled: 1
+    path: Assets/Scenes/Tengku.unity
+    guid: 5382c71ef6ed43d4f9daf0e922fb069d
   m_configObjects: {}
