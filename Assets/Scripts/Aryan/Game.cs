@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
@@ -8,9 +9,14 @@ public class Game : MonoBehaviour
 
     private GameObject[] positions = new GameObject[64];
 
-    private int moveNumber = 1;
     private GameObject selectedPiece;
-    void Start()
+
+    private string turn = "white";
+
+    private bool gameOver = false;
+    public AudioSource audioSource;
+
+    public void Start()
     {
         // White pieces
         positions[0 + 0 * 8] = CreatePiece("white", "rook", 0, 0);
@@ -52,7 +58,16 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        // Make object follow mouse
+        if (gameOver == true && Input.GetMouseButtonDown(0))
+        {
+            gameOver = false;
+
+            SceneManager.LoadScene("Aryan");
+
+            return;
+        }
+
+        // Make piece follow mouse
         if (selectedPiece)
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -67,7 +82,7 @@ public class Game : MonoBehaviour
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
-                if (hit.collider && hit.collider.tag == "Chesspiece")
+                if (hit.collider && hit.collider.tag == "Chesspiece" && hit.collider.gameObject.GetComponent<Chesspiece>().GetPlayer() == turn)
                 {
                     selectedPiece = hit.collider.gameObject;
                 }
@@ -81,12 +96,19 @@ public class Game : MonoBehaviour
             {
                 Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 BoardPosition position = Utility.CoordinatesToBoardPosition(mousePosition);
-                selectedPiece.GetComponent<Chesspiece>().Move(position.x, position.y);
+                bool validMove = selectedPiece.GetComponent<Chesspiece>().Move(position.x, position.y);
                 selectedPiece = null;
+
+                if (validMove)
+                {
+                    audioSource.Play();
+                    NextTurn();
+                }
             }
         }
     }
 
+    // Create piece
     public GameObject CreatePiece(string player, string piece, int x, int y)
     {
         GameObject obj = Instantiate(chesspiecePrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -97,16 +119,26 @@ public class Game : MonoBehaviour
         return obj;
     }
 
+    // Change turns
+    public void NextTurn()
+    {
+        if (turn == "white") turn = "black";
+        else if (turn == "black") turn = "white";
+    }
+
+    // Check if position is empty
     public bool PositionIsEmpty(int x, int y)
     {
         return positions[x + y * 8] == null;
     }
 
+    // Empty position (x, y)
     public void SetPositionEmpty(int x, int y)
     {
         positions[x + y * 8] = null;
     }
 
+    // Set piece to be at position
     public void SetPosition(GameObject piece)
     {
         BoardPosition position = piece.GetComponent<Chesspiece>().GetPosition();
@@ -114,12 +146,18 @@ public class Game : MonoBehaviour
         positions[position.x + position.y * 8] = piece;
     }
 
+    // Get piece at (x, y) position
     public GameObject GetPosition(int x, int y)
     {
         return positions[x + y * 8];
     }
-    public int GetMoveNumber()
+
+    // Set the winner
+
+    public void Winner(string player)
     {
-        return moveNumber;
+        gameOver = true;
+
+        Debug.Log(player + " Wins!");
     }
 }
