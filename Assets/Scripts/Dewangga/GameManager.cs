@@ -13,28 +13,32 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI gameOverText;
     public Button retryButton;
 
-    private Player player;
+    private Dino player;
     private Spawner spawner;
 
     private void Awake()
     {
-        if (Instance == null) {
+        if (Instance == null)
+        {
             Instance = this;
-        } else {
+        }
+        else
+        {
             DestroyImmediate(gameObject);
         }
     }
 
     private void OnDestroy()
     {
-        if (Instance == this) {
+        if (Instance == this)
+        {
             Instance = null;
         }
     }
 
     private void Start()
     {
-        player = FindObjectOfType<Player>();
+        player = FindObjectOfType<Dino>();
         spawner = FindObjectOfType<Spawner>();
 
         NewGame();
