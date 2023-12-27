@@ -104,13 +104,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d55c946660ebe2a4b8c81cecfaffcf5b, type: 3}
   - {fileID: 21300000, guid: 0eb44fd83b91e6c479fd571d797d5579, type: 3}
   - {fileID: 21300000, guid: a651bf8a9cf15dc4790d7cb546c08f83, type: 3}
-  - {fileID: 21300000, guid: 52c5e200ce6047e4784ca32c1e0fa623, type: 3}
+  - {fileID: 21300000, guid: b6eb3196d9e511240a914d1be35d6c9a, type: 3}
   - {fileID: 21300000, guid: 3867d238eac8ab1429f7876476c39d79, type: 3}
   - {fileID: 21300000, guid: b2cec2672c66c7c47b195431e72373df, type: 3}
   - {fileID: 21300000, guid: df4337ed2d7835341928067785f5aa62, type: 3}
   - {fileID: 21300000, guid: 03c65c476a46cd64cafc6d07e99f3e18, type: 3}
   - {fileID: 21300000, guid: e8204383c92356741a96c85e702d1b53, type: 3}
-  - {fileID: 21300000, guid: 6736c73dcc9176d47a5dcc3080b4227e, type: 3}
+  - {fileID: 21300000, guid: a22a9d32733464c479e4e5de6a4f897a, type: 3}
   spriteRenderer: {fileID: 506559297500138757}
 --- !u!61 &6037423781850393089
 BoxCollider2D:

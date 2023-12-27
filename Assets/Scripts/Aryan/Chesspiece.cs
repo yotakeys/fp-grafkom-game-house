@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Chesspiece : MonoBehaviour
@@ -51,14 +48,262 @@ public class Chesspiece : MonoBehaviour
 
     public bool CanMovePosition(int x, int y)
     {
-        if (x >= 0 && x < 8 && y >= 0 && y < 8)
+        if (x >= 0 && x < 8 && y >= 0 && y < 8 && (x != this.x || y != this.y))
         {
-            switch (piece)
+            return piece switch
             {
-                case "pawn":
-                    return PawnMovement(x, y);
+                "pawn" => PawnMovement(x, y),
+                "bishop" => DiagonalMovement(x, y),
+                "knight" => KnightMovement(x, y),
+                "queen" => VerticalMovement(x, y) || HorizontalMovement(x, y) || DiagonalMovement(x, y),
+                "rook" => VerticalMovement(x, y) || HorizontalMovement(x, y),
+                "king" => KingMovement(x, y),
+                _ => true,
+            };
+        }
 
+        return false;
+    }
+
+    public bool IsCaptureSquare(int x, int y)
+    {
+        return !controller.PositionIsEmpty(x, y) && (player == "white" && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "black" || player == "black" && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "white");
+    }
+
+    public List<BoardPosition> VerticalMovementSquares()
+    {
+        List<BoardPosition> availableSquares = new();
+
+        // Up
+        int i = y + 1;
+        while (i < 8 && (controller.PositionIsEmpty(x, i) || IsCaptureSquare(x, i)))
+        {
+            availableSquares.Add(new BoardPosition(x, i));
+
+            if (IsCaptureSquare(x, i)) break;
+
+            i++;
+        }
+
+        // Down
+        i = y - 1;
+        while (i >= 0 && (controller.PositionIsEmpty(x, i) || IsCaptureSquare(x, i)))
+        {
+            availableSquares.Add(new BoardPosition(x, i));
+
+            if (IsCaptureSquare(x, i)) break;
+
+            i--;
+        }
+
+        return availableSquares;
+    }
+
+    public List<BoardPosition> HorizontalMovementSquares()
+    {
+        List<BoardPosition> availableSquares = new();
+        int i;
+
+        // Right
+        i = x + 1;
+        while (i < 8 && (controller.PositionIsEmpty(i, y) || IsCaptureSquare(i, y)))
+        {
+            availableSquares.Add(new BoardPosition(i, y));
+
+            if (IsCaptureSquare(i, y)) break;
+
+            i++;
+        }
+
+        // Left
+        i = x - 1;
+        while (i >= 0 && (controller.PositionIsEmpty(i, y) || IsCaptureSquare(i, y)))
+        {
+            availableSquares.Add(new BoardPosition(i, y));
+
+            if (IsCaptureSquare(i, y)) break;
+
+            i--;
+        }
+
+        return availableSquares;
+    }
+
+    public List<BoardPosition> DiagonalMovementSquares()
+    {
+        List<BoardPosition> availableSquares = new();
+        int i, j;
+
+        // Top left
+        i = x - 1; j = y + 1;
+        while (i >= 0 && j < 8 && (controller.PositionIsEmpty(i, j) || IsCaptureSquare(i, j)))
+        {
+            availableSquares.Add(new BoardPosition(i, j));
+
+            if (IsCaptureSquare(i, j)) break;
+
+            i--; j++;
+        }
+
+        // Top right
+        i = x + 1; j = y + 1;
+        while (i < 8 && j < 8 && (controller.PositionIsEmpty(i, j) || IsCaptureSquare(i, j)))
+        {
+            availableSquares.Add(new BoardPosition(i, j));
+
+            if (IsCaptureSquare(i, j)) break;
+
+            i++; j++;
+        }
+
+        // Bottom right
+        i = x + 1; j = y - 1;
+        while (i < 8 && j >= 0 && (controller.PositionIsEmpty(i, j) || IsCaptureSquare(i, j)))
+        {
+            availableSquares.Add(new BoardPosition(i, j));
+
+            if (IsCaptureSquare(i, j)) break;
+
+            i++; j--;
+        }
+
+        // Bottom left
+        i = x - 1; j = y - 1;
+        while (i >= 0 && j >= 0 && (controller.PositionIsEmpty(i, j) || IsCaptureSquare(i, j)))
+        {
+            availableSquares.Add(new BoardPosition(i, j));
+
+            if (IsCaptureSquare(i, j)) break;
+
+            i--; j--;
+        }
+
+        foreach (BoardPosition square in availableSquares)
+        {
+            Debug.Log(square.x + " " + square.y);
+        }
+
+        return availableSquares;
+    }
+
+    public List<BoardPosition> KnightMovementSquares()
+    {
+        List<BoardPosition> availableSquares = new();
+
+        int[] dx = { 1, 2, 2, 1, -1, -2, -2, -1 };
+        int[] dy = { -2, -1, 1, 2, 2, 1, -1, -2 };
+
+        // Every possible knight move
+        for (int i = 0; i < 8; i++)
+        {
+            int newX = x + dx[i];
+            int newY = y + dy[i];
+
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
+                (controller.PositionIsEmpty(newX, newY) || IsCaptureSquare(newX, newY)))
+            {
+                availableSquares.Add(new BoardPosition(newX, newY));
             }
+        }
+
+        foreach (BoardPosition square in availableSquares)
+        {
+            Debug.Log(square.x + " " + square.y);
+        }
+
+        return availableSquares;
+    }
+
+    public List<BoardPosition> PawnMovementSquares()
+    {
+        List<BoardPosition> availableSquares = new();
+
+        int direction = (player == "white") ? 1 : -1;
+
+        if (y + direction >= 0 && y + direction < 8)
+        {
+            // Diagonal Movement
+            if (x - 1 >= 0 && IsCaptureSquare(x - 1, y + direction)) availableSquares.Add(new BoardPosition(x - 1, y + direction));
+            if (x + 1 < 8 && IsCaptureSquare(x + 1, y + direction)) availableSquares.Add(new BoardPosition(x + 1, y + direction));
+
+            // Vertical Movement
+
+            // One step
+            if (controller.PositionIsEmpty(x, y + direction)) availableSquares.Add(new BoardPosition(x, y + direction));
+
+            // Two steps
+            if (y + 2 * direction >= 0 && y + 2 * direction < 8)
+            {
+                if (timesMoved == 0 &&
+                    controller.PositionIsEmpty(x, y + direction) &&
+                    controller.PositionIsEmpty(x, y + 2 * direction))
+                {
+                    availableSquares.Add(new BoardPosition(x, y + 2 * direction));
+                }
+            }
+        }
+        foreach (BoardPosition square in availableSquares)
+        {
+            Debug.Log(square.x + " " + square.y);
+        }
+
+        return availableSquares;
+    }
+
+    public List<BoardPosition> KingMovementSquares()
+    {
+        List<BoardPosition> availableSquares = new();
+
+        int[] dx = { -1, 0, 1, 1, 1, 0, -1, -1 };
+        int[] dy = { 1, 1, 1, 0, -1, -1, -1, 0 };
+
+        for (int i = 0; i < 8; i++)
+        {
+            int newX = x + dx[i];
+            int newY = y + dy[i];
+
+            if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8 &&
+                (controller.PositionIsEmpty(newX, newY) || IsCaptureSquare(newX, newY)))
+            {
+                availableSquares.Add(new BoardPosition(newX, newY));
+            }
+        }
+
+        return availableSquares;
+    }
+
+    public bool VerticalMovement(int x, int y)
+    {
+        foreach (BoardPosition square in VerticalMovementSquares())
+        {
+            if (square.x == x && square.y == y) return true;
+        }
+        return false;
+    }
+
+    public bool HorizontalMovement(int x, int y)
+    {
+        foreach (BoardPosition square in HorizontalMovementSquares())
+        {
+            if (square.x == x && square.y == y) return true;
+        }
+        return false;
+    }
+
+    public bool DiagonalMovement(int x, int y)
+    {
+        foreach (BoardPosition square in DiagonalMovementSquares())
+        {
+            if (square.x == x && square.y == y) return true;
+        }
+        return false;
+    }
+
+    public bool KnightMovement(int x, int y)
+    {
+        foreach (BoardPosition square in KnightMovementSquares())
+        {
+            if (square.x == x && square.y == y) return true;
         }
 
         return false;
@@ -66,41 +311,59 @@ public class Chesspiece : MonoBehaviour
 
     public bool PawnMovement(int x, int y)
     {
-        // Diagonal Movement
-        if (Mathf.Abs(x - this.x) == 1 && y == this.y + 1)
+        foreach (BoardPosition square in PawnMovementSquares())
         {
-            // Check if there is piece on diagonal
-            if (!controller.PositionIsEmpty(x, y) && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "black")
-            {
-                return true;
-            }
+            if (square.x == x && square.y == y) return true;
         }
 
-        // Vertical Movement
-        if (x == this.x && y > this.y)
+        return false;
+    }
+
+    public bool KingMovement(int x, int y)
+    {
+        foreach (BoardPosition square in KingMovementSquares())
         {
-            if (controller.PositionIsEmpty(x, y))
-            {
-                if (y <= this.y + 2 && timesMoved == 0) return true;
-                if (y <= this.y + 1) return true;
-            }
+            if (square.x == x && square.y == y) return true;
         }
+
         return false;
     }
 
     public void Move(int x, int y)
     {
+        // Reset position if move is invalid
         if (!CanMovePosition(x, y))
         {
             SetPosition(this.x, this.y);
             return;
         };
 
+        if (IsCaptureSquare(x, y))
+        {
+            Destroy(controller.GetPosition(x, y));
+        }
+
+        controller.SetPositionEmpty(this.x, this.y);
+
         timesMoved++;
         this.x = x;
         this.y = y;
 
         SetPosition(x, y);
+
+        controller.SetPosition(gameObject);
+    }
+
+    public bool Capture(int x, int y)
+    {
+        if (!controller.PositionIsEmpty(x, y) &&
+            (player == "white" && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "black" ||
+            player == "black" && controller.GetPosition(x, y).GetComponent<Chesspiece>().GetPlayer() == "white"))
+        {
+            Destroy(controller.GetPosition(x, y));
+            return true;
+        }
+        return false;
     }
 
     public string GetPlayer()
@@ -115,6 +378,6 @@ public class Chesspiece : MonoBehaviour
 
     public BoardPosition GetPosition()
     {
-        return new BoardPosition(this.x, this.y);
+        return new BoardPosition(x, y);
     }
 }
