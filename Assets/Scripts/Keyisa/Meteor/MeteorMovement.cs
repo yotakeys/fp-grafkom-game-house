@@ -10,9 +10,11 @@ public class MeteorMovement : MonoBehaviour
 
     public List<Sprite> imageList = new List<Sprite>();
 
+    public GameObject explosion;
+
     private void Start()
     {
-        speed = Random.Range(5, 12);
+        speed = Random.Range(6, 12);
 
         Sprite randomImage = GetRandomImage();
         transform.GetComponent<SpriteRenderer>().sprite = randomImage;
@@ -26,12 +28,16 @@ public class MeteorMovement : MonoBehaviour
 
         transform.Rotate(0, 0, 0.5f);
         
-        if(pos.x <= Data.minX)
+        if(pos.x <= Data.minX - 10)
         {
             Destroy(gameObject);
-            Data.scores += 10;
         }
 
+    }
+
+    private void OnDestroy()
+    {
+        Instantiate(explosion, transform.position, transform.rotation);
     }
 
     Sprite GetRandomImage()
