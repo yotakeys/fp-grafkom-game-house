@@ -70,7 +70,7 @@ public class MenuManager : MonoBehaviour
 
     public void BackBtn()
     {
-        /*SoundManager.instance.PlayClick();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);*/
+        SceneManager.LoadScene("MainScene");
+
     }
 }
