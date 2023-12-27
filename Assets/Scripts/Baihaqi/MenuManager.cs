@@ -66,4 +66,11 @@ public class MenuManager : MonoBehaviour
         SoundManager.instance.PlayClick();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+
+    public void BackBtn()
+    {
+        /*SoundManager.instance.PlayClick();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);*/
+    }
 }
